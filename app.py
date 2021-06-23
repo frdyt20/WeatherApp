@@ -15,16 +15,19 @@ class City(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
-@app.route('/')
-def index_get():
-    cities = City.query.all()
-
-    """ API untuk Cuaca
-    dengan parameter query untuk kota, 
+""" Fungsi untuk mendapatkan ketersediaan data pada API 
+    untuk Cuaca dengan parameter query untuk kota, 
     units untuk satuan ukuran dalam metric(Celcius),
     lang untuk bahasa(Indonesia), serta appID untuk APIkey for Developer
     """
-    url = 'http://api.openweathermap.org/data/2.5/weather?q={}&units=metric&lang=id&appid=271d1234d3f497eed5b1d80a07b3fcd1'
+def get_weather_data(city):
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={ city }&units=metric&lang=id&appid=271d1234d3f497eed5b1d80a07b3fcd1'
+    response = requests.get(url).json()
+    return response
+
+@app.route('/')
+def index_get():
+    cities = City.query.all()
 
     weather_data = []
 
@@ -35,7 +38,7 @@ def index_get():
     """
     for city in cities:
 
-        response = requests.get(url.format(city.name)).json()
+        response = get_weather_data(city.name)
 
         weather = {
             'city' : city.name,
@@ -51,12 +54,28 @@ def index_get():
 
 @app.route('/', methods=['POST'])
 def index_post():
+    error_message = ''
     new_city = request.form.get('city')
-        
+
+    """Fungsi untuk menambahkan data yang didapatkan dari API
+    ke dalam SQlite DB. Dengan error handling berupa validasi
+    pengecekan ketersediaan data yang diinginkan melalui API 
+    dan duplikasi data pada database sqlite.
+    """    
     if new_city:
-        new_city_obj = City(name=new_city)
+        existing_city = City.query.filter_by(name=new_city).first()
 
-        db.session.add(new_city_obj)
-        db.session.commit()
+        if not existing_city:
+            new_city_data = get_weather_data(new_city)
+            if new_city_data['cod'] == 200:
 
-    return redirect(url_for(index_get))
+                new_city_obj = City(name=new_city)
+
+                db.session.add(new_city_obj)
+                db.session.commit()
+            else:
+                error_message = 'Nama kota tidak ditemukan'
+        else:
+            error_message = 'Nama kota ini sudah ditambahkan sebelumnya'
+
+    return redirect(url_for('index_get'))
