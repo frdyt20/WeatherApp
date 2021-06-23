@@ -1,10 +1,13 @@
+from flask.helpers import url_for
 import requests
-from flask import Flask, render_template, request
-from flask_sqlalchemy import SQLAlchemy 
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import redirect 
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///weather.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
@@ -12,17 +15,8 @@ class City(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        new_city = request.form.get('city')
-        
-        if new_city:
-            new_city_obj = City(name=new_city)
-
-            db.session.add(new_city_obj)
-            db.session.commit()
-
+@app.route('/')
+def index_get():
     cities = City.query.all()
 
     """ API untuk Cuaca
@@ -54,3 +48,15 @@ def index():
 
 
     return render_template('weather.html', weather_data=weather_data)
+
+@app.route('/', methods=['POST'])
+def index_post():
+    new_city = request.form.get('city')
+        
+    if new_city:
+        new_city_obj = City(name=new_city)
+
+        db.session.add(new_city_obj)
+        db.session.commit()
+
+    return redirect(url_for(index_get))
