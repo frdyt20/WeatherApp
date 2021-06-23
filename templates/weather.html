@@ -1,4 +1,4 @@
-a<!DOCTYPE html>
+<!-- a<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -77,4 +77,220 @@ a<!DOCTYPE html>
     </section>
     <footer class="footer"></footer>
   </body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>PRODTS - Weather</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Abril+Fatface&amp;display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='style-2.css') }}" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="colorlib-page">
+    <a href="#" class="js-colorlib-nav-toggle colorlib-nav-toggle"><i></i></a>
+    <aside id="colorlib-aside" role="complementary" class="js-fullheight"
+      style="background: url({{ url_for('static', filename='images/xaside.png.pagespeed.ic.oH6ug16FYC.png') }}) no-repeat right top #000;">
+      <h1 id="colorlib-logo" class="mb-4 mb-md-5"><a href="index.html"
+          style="background-image: url({{ url_for('static', filename='images/bg_1.jpg') }})">PRODTS weather</a></h1>
+      <nav id="colorlib-main-menu" role="navigation">
+        <ul>
+          <!-- <li class="colorlib-active"><a href="#">WEATHER</a></li> -->
+        </ul>
+      </nav>
+      <div class="colorlib-footer">
+        <div class="mb-4">
+
+        </div>
+        <p class="pfooter">
+          Copyright &copy;
+          <script>document.write(new Date().getFullYear());</script> All rights reserved<i class="fa fa-heart"
+            aria-hidden="true"></i>
+        </p>
+      </div>
+    </aside>
+    <div id="colorlib-main">
+      <section class="ftco-about img ftco-section ftco-no-pt ftco-no-pb" id="about-section">
+        <div class="container-fluid px-0">
+          <div class="row d-flex">
+            <div class="col-md-12 d-flex align-items-center">
+              <div class="text px-4 pt-5 pt-md-0 px-md-4 pr-md-5">
+                <h2 class="mb-4">Hello!<span> find the weather.</span></h2>
+                <form method="POST" class="contactForm">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="label" for="subject">Your City</label>
+                        <input class="form-control" name="city" type="text" placeholder="get weather.."
+                          autocomplete="off" />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      {% with messages = get_flashed_messages(with_categories = true) %} {% if messages %} {% for
+                      category,
+                      message in messages %} {% set message_class = 'is-success' %} {% if category == 'error' %} {% set
+                      message_class =
+                      'is-danger' %} {% endif %}
+                      <br />
+                      <label class="label {{message_class}}">{{ message }}</label>
+                      <br />
+                      <br />
+                      {% endfor %} {% endif %} {% endwith %}
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <input type="submit" value="Find a wheater" class="btn btn-primary">
+                        <div class="submitting"></div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+
+                <!-- Modal -->
+                <div id="open-modal" class="modal-window">
+                  <div>
+                    <form action="{{ url_for('filter_city') }}" method="POST">
+                      <a href="#" title="Close" class="modal-close">Close</a>
+                      <h6 style="color: black;">Select weather</h6>
+                      <select class="form-control" name="city" style="color: black!important;">
+                        <option value="">-- Select --</option>
+                        {% for weather in weather_data %}
+                        <option value="{{ weather.city }}"> {{ weather.city }}</option>
+                        {% endfor %}
+                      </select>
+                      <div class="col-md-12" style="text-align: right">
+                        <button style="border-radius: 0;background: white;font-size: 14px;"
+                          class="btn btn-primary">Select a wheater
+                        </button>
+                      </div>
+                      <br />
+                      <br />
+                      <div><small>Check out</small></div>
+                    </form>
+                  </div>
+                </div>
+
+
+                <!-- Card -->
+                <br />
+                <div class="col-md-12 text-center">
+                  <div class="container">
+                    <div style="float: right;
+                    padding-top: 10px;">
+                      <a href="{{ url_for('delete_city', name=selected_weather_data[0].city) }}">
+                        <button style="background: white;
+                        color: black;
+                        border-radius: 21px;
+                        border: 1px solid;
+                        font-size: 16px;
+                        width: 38px;
+                        font-weight: bold;" class="btn">X</button>
+                      </a>
+                    </div>
+
+                    <div class="weather-side">
+                      <div class="weather-gradient"></div>
+                      <div class="date-container">
+                        <h2>{{selected_weather_data[0].city}}</h2>
+                        <span class="date-full">15 Jan 2019 | </span>
+                        <span><b class="date-dayname">-</b></span>
+                      </div>
+                      <div class="weather-container">
+                        <h1 class="weather-temp">{{selected_weather_data[0].temperature}}°C</h1>
+                        <i class="weather-icon" data-feather="sun" style="display:flex">
+                          <img src="http://openweathermap.org/img/w/{{ selected_weather_data[0].icon }}.png"
+                            alt="Image" />
+                          <h4 class="weather-desc">{{selected_weather_data[0].description.upper()}}</h3>
+                        </i>
+
+                      </div>
+                    </div>
+                    <div class="info-side">
+                      <div class="week-container">
+                        <ul class="week-list">
+                          <li class="active"><i class="day-icon" data-feather="sun"></i>
+                            <span class="next-day-1 day-name">Tue</span>
+                            <span class="next-weather-1 day-temp">29°C</span>
+                          </li>
+                          <li><i class="day-icon" data-feather="cloud"></i>
+                            <span class="next-day-2 day-name">Wed</span>
+                            <span class="next-weather-2 day-temp">21°C</span>
+                          </li>
+                          <li><i class="day-icon" data-feather="cloud-snow"></i>
+                            <span class="next-day-3 day-name">Thu</span>
+                            <span class="next-weather-3 day-temp">08°C</span>
+                          </li>
+                          <li><i class="day-icon" data-feather="cloud-rain"></i>
+                            <span class="next-day-4 day-name">Fry</span>
+                            <span class="next-weather-4 day-temp">19°C</span>
+                          </li>
+                          <div class="clear"></div>
+                        </ul>
+                      </div>
+                      <div class="location-container">
+                        <a class="location-button" href="#open-modal"> <i data-feather="map-pin"></i><span>Change
+                            location</span></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+
 </html>
+
+
+<script type="text/javascript">
+  var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var monthNames = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const random = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+  var today = new Date();
+  var day = today.getDay();
+  var date = today.getDate();
+  var month = today.getMonth()
+  var year = today.getFullYear()
+
+  document.getElementsByClassName('date-dayname')[0].innerHTML = dayNames[day]
+  document.getElementsByClassName('date-full')[0].innerHTML = `${date} ${monthNames[month]} ${year}`
+
+  var next_one_day = (day === 6) ? 0 : day + 1
+  var next_two_day = (next_one_day === 6) ? 0 : next_one_day + 1
+  var next_three_day = (next_two_day === 6) ? 0 : next_two_day + 1
+  var next_four_day = (next_three_day === 6) ? 0 : next_three_day + 1
+
+  console.log(document.getElementsByClassName('next-day-1')[0])
+  document.getElementsByClassName('next-day-1')[0].innerHTML = dayNames[next_one_day]
+  document.getElementsByClassName('next-day-2')[0].innerHTML = dayNames[next_two_day]
+  document.getElementsByClassName('next-day-3')[0].innerHTML = dayNames[next_three_day]
+  document.getElementsByClassName('next-day-4')[0].innerHTML = dayNames[next_four_day]
+  document.getElementsByClassName('next-weather-1')[0].innerHTML = `${random(26.1, 31.2)} °C`
+  document.getElementsByClassName('next-weather-2')[0].innerHTML = `${random(26.1, 31.2)} °C`
+  document.getElementsByClassName('next-weather-3')[0].innerHTML = `${random(26.1, 31.2)} °C`
+  document.getElementsByClassName('next-weather-4')[0].innerHTML = `${random(26.1, 31.2)} °C`
+
+</script>
+
+
+

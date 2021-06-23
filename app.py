@@ -32,12 +32,14 @@ def index_get():
     cities = City.query.all()
 
     weather_data = []
+    selected_weather_data = []
 
     """ Fungsi untuk memanggil data cuaca pada API
     dengan parameter nama Lokasi, lalu return data berupa dictionary
     berisikan nama Lokasi, suhu dalam format celcius,
     deskipsi mengenai cuaca saat ini, dan icon yang menggambarkan cuaca saat ini
     """
+
     for city in cities:
 
         response = get_weather_data(city.name)
@@ -50,9 +52,9 @@ def index_get():
         }
 
         weather_data.append(weather)
-
-
-    return render_template('weather.html', weather_data=weather_data)
+    
+    selected_weather_data.append(weather_data[0])
+    return render_template('weather.html', weather_data=weather_data, selected_weather_data=selected_weather_data)
 
 @app.route('/', methods=['POST'])
 def index_post():
@@ -100,3 +102,38 @@ def delete_city(name):
 
     flash(f'Lokasi { city.name } berhasil dihapus', 'success')
     return redirect(url_for('index_get'))
+
+
+
+@app.route('/filter_city', methods=['POST'])
+def filter_city():
+    # Fungsi untuk filter data    
+    weather_data = []
+    selected_weather_data = []
+    
+
+    city = request.form.get('city')
+    selected_city_query = City.query.filter_by(name=city)
+    for city in selected_city_query:
+        response = get_weather_data(city.name)
+        weather = {
+            'city' : city.name,
+            'temperature' : response['main']['temp'],
+            'description' : response['weather'][0]['description'],
+            'icon' : response['weather'][0]['icon'],
+        }
+        selected_weather_data.append(weather)
+   
+    cities = City.query.all()
+    for city in cities:
+        response = get_weather_data(city.name)
+        weather = {
+            'city' : city.name,
+            'temperature' : response['main']['temp'],
+            'description' : response['weather'][0]['description'],
+            'icon' : response['weather'][0]['icon'],
+        }
+        weather_data.append(weather)
+
+    return render_template('weather.html', weather_data=weather_data, selected_weather_data=selected_weather_data)
+    
