@@ -1,6 +1,6 @@
 from flask.helpers import url_for
 import requests
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import redirect 
 
@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///weather.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'classified'
 
 db = SQLAlchemy(app)
 
@@ -74,8 +75,13 @@ def index_post():
                 db.session.add(new_city_obj)
                 db.session.commit()
             else:
-                error_message = 'Nama kota tidak ditemukan'
+                error_message = 'Kota tidak ditemukan'
         else:
-            error_message = 'Nama kota ini sudah ditambahkan sebelumnya'
+            error_message = 'Kota ini sudah ditambahkan sebelumnya'
+
+    if error_message:
+        flash(error_message, 'error')
+    else:
+        flash('Kota berhasil ditambahkan!')
 
     return redirect(url_for('index_get'))

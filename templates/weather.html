@@ -26,9 +26,15 @@
                   <input class="input" name="city" type="text" placeholder="Nama Kota" />
                 </div>
                 <div class="control">
-                  <button class="button is-info">Tambah Kota</button>
+                  <button class="button is-info">Tambah Lokasi</button>
                 </div>
               </div>
+              {% with messages = get_flashed_messages(with_categories = true) %} {% if messages %} {% for category, message in messages %} {% set message_class = 'is-success' %} {% if category == 'error' %} {% set message_class =
+              'is-danger' %} {% endif %}
+
+              <div class="notification {{message_class}}">{{ message }}</div>
+
+              {% endfor %} {% endif %} {% endwith %}
             </form>
           </div>
         </div>
@@ -56,6 +62,9 @@
                       {{ weather.description }}
                     </p>
                   </div>
+                </div>
+                <div class="media-right">
+                  <button class="delete"></button>
                 </div>
               </article>
             </div>
