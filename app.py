@@ -1,3 +1,4 @@
+from os import name
 from flask.helpers import url_for
 import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -17,7 +18,7 @@ class City(db.Model):
     name = db.Column(db.String(50), nullable=False)
 
 """ Fungsi untuk mendapatkan ketersediaan data pada API 
-    untuk Cuaca dengan parameter query untuk kota, 
+    untuk Cuaca dengan parameter query untuk Lokasi, 
     units untuk satuan ukuran dalam metric(Celcius),
     lang untuk bahasa(Indonesia), serta appID untuk APIkey for Developer
     """
@@ -33,8 +34,8 @@ def index_get():
     weather_data = []
 
     """ Fungsi untuk memanggil data cuaca pada API
-    dengan parameter nama kota, lalu return data berupa dictionary
-    berisikan nama kota, suhu dalam format celcius,
+    dengan parameter nama Lokasi, lalu return data berupa dictionary
+    berisikan nama Lokasi, suhu dalam format celcius,
     deskipsi mengenai cuaca saat ini, dan icon yang menggambarkan cuaca saat ini
     """
     for city in cities:
@@ -75,13 +76,27 @@ def index_post():
                 db.session.add(new_city_obj)
                 db.session.commit()
             else:
-                error_message = 'Kota tidak ditemukan'
+                error_message = 'Lokasi tidak ditemukan'
         else:
-            error_message = 'Kota ini sudah ditambahkan sebelumnya'
+            error_message = 'Lokasi ini sudah ditambahkan sebelumnya'
 
     if error_message:
         flash(error_message, 'error')
     else:
-        flash('Kota berhasil ditambahkan!')
+        flash('Lokasi berhasil ditambahkan!')
 
+    return redirect(url_for('index_get'))
+
+@app.route('/delete/<name>/')
+
+def delete_city(name):
+    
+    """Fungsi untuk menghapus data pada web view, sekaligus
+    value pada SQlite DB    
+    """
+    city = City.query.filter_by(name=name).first()
+    db.session.delete(city)
+    db.session.commit()
+
+    flash(f'Lokasi { city.name } berhasil dihapus', 'success')
     return redirect(url_for('index_get'))

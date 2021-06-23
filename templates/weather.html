@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+a<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -64,7 +64,9 @@
                   </div>
                 </div>
                 <div class="media-right">
-                  <button class="delete"></button>
+                  <a href="{{ url_for('delete_city', name=weather.city) }}">
+                    <button class="delete"></button>
+                  </a>
                 </div>
               </article>
             </div>
